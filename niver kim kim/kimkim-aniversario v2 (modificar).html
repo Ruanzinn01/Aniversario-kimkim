@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Feliz Aniversário, Kimkim! 💙</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --blue-deep: #071a3e;
+      --blue-main: #0f3580;
+      --blue-mid: #1a5cbf;
+      --blue-light: #5b9bef;
+      --blue-pale: #bbdcff;
+      --accent: #6ec6ff;
+      --accent-bright: #a8d8ff;
+      --white: #ffffff;
+      --text-light: rgba(255, 255, 255, 0.85);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Lato', sans-serif;
+      background: var(--blue-deep);
+      touch-action: pan-y;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(100%);
+      overflow: hidden;
+      background: linear-gradient(160deg, var(--blue-deep) 0%, var(--blue-main) 55%, #1e5ab5 100%);
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+
+    .screen.exit-left {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    /* Rich gradient overlay */
+    .screen::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(110, 198, 255, 0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 85%, rgba(26, 92, 191, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(110, 198, 255, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .balloons-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -120px;
+      font-size: 3rem;
+      animation: floatUp 5s ease-in forwards;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateX(0) rotate(-4deg);
+        opacity: 0;
+        bottom: -120px;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      45% {
+        transform: translateX(18px) rotate(4deg);
+      }
+
+      88% {
+        opacity: 0.7;
+      }
+
+      100% {
+        bottom: 110%;
+        opacity: 0;
+      }
+    }
+
+    .screen-content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .display-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 9vw, 3.2rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .display-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: clamp(0.92rem, 3.4vw, 1.05rem);
+      color: var(--text-light);
+      line-height: 1.75;
+      font-weight: 300;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--blue-pale);
+      margin-bottom: 1rem;
+      opacity: 0.75;
+    }
+
+    .message-text {
+      font-size: clamp(0.88rem, 3.1vw, 0.98rem);
+      color: var(--text-light);
+      line-height: 1.9;
+      font-weight: 300;
+      text-align: left;
+      max-height: 48vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue-light) transparent;
+    }
+
+    .message-text p {
+      margin-bottom: 0.9rem;
+    }
+
+    .divider {
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 1rem auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.8rem;
+      padding: 0.85rem 2rem;
+      background: linear-gradient(135deg, #6ec6ff 0%, #2e8fd4 100%);
+      color: var(--blue-deep);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(110, 198, 255, 0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      -webkit-appearance: none;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 3px 12px rgba(110, 198, 255, 0.2);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      box-shadow: none;
+    }
+
+    .btn-ghost:active {
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .dots {
+      position: fixed;
+      bottom: 1.4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 100;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      transition: background 0.3s, width 0.3s;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      width: 18px;
+      border-radius: 3px;
+    }
+
+    /* S1 */
+    #s1 .emoji-big {
+      font-size: 3.5rem;
+      margin-bottom: 1.4rem;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.09)
+      }
+    }
+
+    /* S2 */
+    #s2 .reveal-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.3rem, 5.5vw, 1.9rem);
+      color: var(--white);
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    #s2 .reveal-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #s2 .age-highlight {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(4rem, 18vw, 6rem);
+      font-weight: 700;
+      color: var(--accent-bright);
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.9s ease 0.3s, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+      margin: 0.4rem 0;
+      text-shadow: 0 0 50px rgba(110, 198, 255, 0.6);
+    }
+
+    #s2 .age-highlight.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* S3 card */
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 1.3rem;
+      backdrop-filter: blur(10px);
+    }
+
+    /* S4 stats */
+    .stat-block {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 14px;
+      padding: 1rem 1.8rem;
+      margin: 0.5rem 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-top: 3px;
+    }
+
+    /* S5 photos */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+      margin: 0.8rem 0;
+    }
+
+    .polaroid {
+      background: white;
+      padding: 5px 5px 18px;
+      border-radius: 3px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      transform: rotate(var(--rot));
+      transition: transform 0.25s ease;
+      cursor: pointer;
+    }
+
+    .polaroid:nth-child(1) {
+      --rot: -2deg
+    }
+
+    .polaroid:nth-child(2) {
+      --rot: 1.5deg
+    }
+
+    .polaroid:nth-child(3) {
+      --rot: -1deg
+    }
+
+    .polaroid:nth-child(4) {
+      --rot: 2deg
+    }
+
+    .polaroid:nth-child(5) {
+      --rot: -1.5deg
+    }
+
+    .polaroid:nth-child(6) {
+      --rot: 1deg
+    }
+
+    .polaroid:active {
+      transform: rotate(0) scale(1.06);
+      z-index: 10;
+    }
+
+    .polaroid-img {
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, var(--blue-pale), var(--blue-light));
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      overflow: hidden;
+    }
+
+    .polaroid-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .polaroid-caption {
+      font-size: 0.9rem;
+      color: #777;
+      text-align: center;
+      margin-top: 6px;
+      font-family: 'Lato', sans-serif;
+    }
+
+    /* S6 gifts */
+    .gift-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      backdrop-filter: blur(8px);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .gift-card:active {
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .gift-icon {
+      font-size: 1.9rem;
+      flex-shrink: 0;
+    }
+
+    .gift-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .gift-desc {
+      font-size: 0.73rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .gift-link {
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    /* S7 final */
+    #s7 .final-emoji {
+      font-size: 3.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    #s7 .final-msg {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(0.95rem, 3.8vw, 1.2rem);
+      color: var(--text-light);
+      line-height: 1.85;
+      font-style: italic;
+      margin: 1rem 0;
+    }
+
+    #s7 .signature {
+      font-size: 0.78rem;
+      color: var(--blue-pale);
+      letter-spacing: 0.1em;
+      margin-top: 1.2rem;
+    }
+
+    /* Fade-up utility */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeUp 0.65s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .delay-1 {
+      animation-delay: 0.12s
+    }
+
+    .delay-2 {
+      animation-delay: 0.26s
+    }
+
+    .delay-3 {
+      animation-delay: 0.42s
+    }
+
+    .delay-4 {
+      animation-delay: 0.6s
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 180px);
+      gap: 20px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .polaroid {
+      width: 180px;
+      padding: 10px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .polaroid-img {
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+    }
+
+    .polaroid-img img,
+    .polaroid-img video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+
+      .photo-grid {
+        display: flex;
+        grid-template-columns: none;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding: 5px 12.5% 20px 12.5%;
+        margin: 0.8rem -1.5rem;
+        width: calc(100% + 3rem);
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .photo-grid::-webkit-scrollbar {
+        display: none;
+      }
+
+      .polaroid {
+        flex: 0 0 75%;
+        width: 75%;
+        max-width: 300px;
+        scroll-snap-align: center;
+        transform: rotate(var(--rot)) translateZ(0);
+      }
+
+      .polaroid:active {
+        transform: rotate(0) scale(1.02);
+      }
+
+      .polaroid-img {
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        height: auto;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+  <div class="dots" id="dots"></div>
+
+  <!-- ══ S1 — ABERTURA ══ -->
+  <div class="screen active" id="s1">
+    <div class="screen-content">
+      <div class="emoji-big">🎂</div>
+      <p class="section-label fade-up">Uma surpresa especial</p>
+      <h1 class="display-title fade-up delay-1">Feliz aniversário,<br><em>Kimkim!</em></h1>
+      <div class="divider fade-up delay-2"></div>
+      <p class="subtitle fade-up delay-3">Eu poderia apenas mandar uma mensagem… mas preparei algo especial para você.
+      </p>
+      <button class="btn fade-up delay-4" onclick="goTo(1)">✨ Abrir surpresa</button>
+    </div>
+  </div>
+
+  <!-- ══ S2 — SURPRESA ══ -->
+  <div class="screen" id="s2">
+    <div class="balloons-container" id="balloons"></div>
+    <div class="screen-content">
+      <p class="section-label">Hoje é um dia muito especial</p>
+      <div id="reveal1" class="reveal-text">Hoje não é um dia qualquer...</div>
+      <div id="revealAge" class="age-highlight">18</div>
+      <div id="reveal2" class="reveal-text">Kimkim completa<br>18 aninhos! 💙🎂</div>
+      <button class="btn" id="s2btn" style="opacity:0;transition:opacity 0.6s ease;" onclick="goTo(2)">Continuar
+        →</button>
+    </div>
+  </div>
+
+  <!-- ══ S3 — MENSAGEM ══ -->
+  <div class="screen" id="s3">
+    <div class="screen-content">
+      <p class="section-label fade-up">💙 Uma mensagem para você</p>
+      <h2 class="display-title fade-up delay-1" style="font-size:clamp(1.5rem,6.5vw,2rem)">Do fundo
+        do<br><em>coração</em></h2>
+      <div class="divider fade-up delay-2"></div>
+      <div class="card fade-up delay-3">
+        <div class="message-text">
+          <p>Kim, a gente se conheceu em um momento muito estranho do mundo… no início da pandemia em 2020.</p>
+          <p>Mesmo sem nunca termos nos encontrado pessoalmente, você se tornou uma pessoa muito especial pra mim.</p>
+          <p>É engraçado como algumas amizades começam pela internet e acabam sendo mais verdadeiras que as outras.</p>
+          <p>Hoje você completa 18 anos, e isso marca o começo de uma nova fase da sua vida.</p>
+          <p>Eu espero que essa nova etapa venha cheia de conquistas, sonhos realizados e muitos momentos felizes.</p>
+          <p>Obrigado por fazer parte da minha vida kim, você não sabe a importancia que possui pra mim.</p>
+          <p> Eu te amo, minha princesinha. 💙</p>
+        </div>
+      </div>
+      <button class="btn fade-up delay-4" onclick="goTo(3)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══ S4 — NOSSA HISTÓRIA ══ -->
+  <div class="screen" id="s4">
+    <div class="screen-content">
+      <p class="section-label fade-up">💙 Nossa história</p>
+      <h2 class="display-title fade-up delay-1" style="font-size:clamp(1.7rem,7.5vw,2.5rem)">Uma
+        amizade<br><em>verdadeira</em></h2>
+      <div class="divider fade-up delay-2"></div>
+      <div class="card fade-up delay-3">
+        <div class="message-text">
+          <p>Tudo começou em 2020. No meio de uma pandemia, quando o mundo parecia que ia acabar.</p>
+          <p>E mesmo assim,você apareceu ali, uma princesinha que me fez sorrir no meio do caos e me encheu de
+            felicidades e risos.</p>
+          <p>Desde então já são mais de 5 anos de amizade, mesmo com toda a distância me sinto tão próximo de você que
+            não consigo explicar em palavras.</p>
+          <p>Você já faz parte da minha vida e é muito importante pra mim...</p>
+          <p>E isso é só o começo da nossa Historia. 💙</p>
+        </div>
+      </div>
+      <button class="btn" style="margin-top:1.4rem;animation:fadeUp 0.65s 0.75s forwards;opacity:0;"
+        onclick="goTo(4)">Ver os momentos →</button>
+    </div>
+  </div>
+
+  <!-- ══ S5 — FOTOS ══ -->
+  <div class="screen" id="s5">
+    <div class="screen-content">
+      <p class="section-label fade-up">📸 Alguns momentos seus</p>
+
+      <div class="photo-grid fade-up delay-1">
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <img src="imagens/foto1.jpeg" alt="Kim">
+          </div>
+          <div class="polaroid-caption">Kimkim 💙</div>
+        </div>
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <video src="Videos/video1.mp4" controls preload="metadata" playsinline></video>
+          </div>
+          <div class="polaroid-caption">Cantoraa</div>
+        </div>
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <img src="imagens/foto2.jpeg" alt="Kim">
+          </div>
+          <div class="polaroid-caption">princesa</div>
+        </div>
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <video src="Videos/video2.mp4" controls preload="metadata" playsinline></video>
+          </div>
+          <div class="polaroid-caption">fofa ✨</div>
+        </div>
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <video src="Videos/video3.mp4" controls preload="metadata" playsinline></video>
+          </div>
+          <div class="polaroid-caption">Lindonaaa</div>
+        </div>
+
+        <div class="polaroid">
+          <div class="polaroid-img">
+            <video src="Videos/video4.mp4" controls preload="metadata" playsinline></video>
+          </div>
+          <div class="polaroid-caption">Especial 💙</div>
+        </div>
+
+      </div>
+
+      <p class="subtitle fade-up delay-2" style="font-size:0.75rem;margin-top:0.4rem;opacity:0.55;">
+        Alguns momentos especiais seus 💙
+      </p>
+
+      <button class="btn fade-up delay-3" onclick="goTo(5)">Ver a surpresa final →</button>
+    </div>
+  </div>
+
+  <!-- ══ S6 — PRESENTE ══ -->
+  <div class="screen" id="s6">
+    <div class="screen-content">
+      <p class="section-label fade-up">🎁 Tenho mais uma surpresa</p>
+      <h2 class="display-title fade-up delay-1" style="font-size:clamp(1.5rem,6.5vw,2rem)">Para a sua<br><em>nova
+          fase</em></h2>
+      <p class="subtitle fade-up delay-2" style="font-size:0.82rem;margin-bottom:0.3rem;">Como você está começando uma
+        nova fase, preparei algo para te ajudar a crescer ainda mais como nail designer. 💅</p>
+      <div class="gift-card fade-up delay-3"
+        onclick="window.open('https://kimberllynaildesinger.netlify.app/','_blank')">
+        <div class="gift-icon">💅</div>
+        <div>
+          <div class="gift-title">Seu site profissional</div>
+          <div class="gift-desc">Um espaço só seu para mostrar seu trabalho</div>
+          <div class="gift-link">Clique para ver →</div>
+        </div>
+      </div>
+      <div class="gift-card fade-up delay-4" onclick="window.open('https://deshboard-kimkim.vercel.app','_blank')">
+        <div class="gift-icon">📊</div>
+        <div>
+          <div class="gift-title">Planilha financeira</div>
+          <div class="gift-desc">Organize suas finanças com facilidade</div>
+          <div class="gift-link">Clique para acessar →</div>
+        </div>
+      </div>
+      <button class="btn" style="animation:fadeUp 0.65s 0.85s forwards;opacity:0;" onclick="goTo(6)">Mensagem final
+        →</button>
+    </div>
+  </div>
+
+  <!-- ══ S7 — FINAL ══ -->
+  <div class="screen" id="s7">
+    <div class="screen-content">
+      <div class="final-emoji fade-up">🎂💙</div>
+      <h2 class="display-title fade-up delay-1">Feliz aniversário,<br><em>princesa</em></h2>
+      <div class="divider fade-up delay-2"></div>
+      <p class="final-msg fade-up delay-3">
+        Que seus 18 anos sejam o começo de uma fase incrível.<br>
+        Que venham muitas conquistas, felicidade e sonhos realizados.<br><br>
+        Obrigado por existir. 💙
+      </p>
+      <p class="signature fade-up delay-4">Com carinho, sempre 🌟</p>
+      <button class="btn btn-ghost" style="margin-top:1.5rem;animation:fadeUp 0.65s 0.85s forwards;opacity:0;"
+        onclick="goTo(0)">↩ Ver novamente</button>
+    </div>
+  </div>
+
+  <script>
+    const screens = document.querySelectorAll('.screen');
+    const total = screens.length;
+    let current = 0;
+
+    // Dots
+    const dotsEl = document.getElementById('dots');
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      dotsEl.appendChild(d);
+    }
+
+    function updateDots(idx) {
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.className = 'dot' + (i === idx ? ' active' : '');
+      });
+    }
+
+    function goTo(idx) {
+      if (idx === current) return;
+      const from = screens[current];
+      const to = screens[idx];
+
+      from.classList.add('exit-left');
+      from.classList.remove('active');
+
+      to.style.transition = 'none';
+      to.style.transform = 'translateX(100%)';
+      to.style.opacity = '0';
+      to.classList.add('active');
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          to.style.transition = '';
+          to.style.transform = 'translateX(0)';
+          to.style.opacity = '1';
+        });
+      });
+
+      setTimeout(() => {
+        from.classList.remove('exit-left');
+        from.style.transform = '';
+        from.style.opacity = '';
+      }, 700);
+
+      current = idx;
+      updateDots(idx);
+
+      if (idx === 1) triggerScreen2();
+      if (idx === 6) triggerConfetti();
+    }
+
+    // Screen 2 animations
+    function triggerScreen2() {
+      spawnBalloons();
+      const r1 = document.getElementById('reveal1');
+      const rAge = document.getElementById('revealAge');
+      const r2 = document.getElementById('reveal2');
+      const btn = document.getElementById('s2btn');
+      r1.classList.remove('show'); rAge.classList.remove('show'); r2.classList.remove('show');
+      btn.style.opacity = '0';
+      setTimeout(() => r1.classList.add('show'), 400);
+      setTimeout(() => rAge.classList.add('show'), 1300);
+      setTimeout(() => r2.classList.add('show'), 2100);
+      setTimeout(() => { btn.style.opacity = '1'; }, 3000);
+    }
+
+    // Balloons
+    function spawnBalloons() {
+      const c = document.getElementById('balloons');
+      c.innerHTML = '';
+      const emojis = ['🎈', '🎈', '🎊', '🎉', '🎈', '💙', '🎈', '🎊', '🎈', '🎉'];
+      emojis.forEach((e, i) => {
+        const b = document.createElement('div');
+        b.className = 'balloon';
+        b.textContent = e;
+        b.style.left = (6 + Math.random() * 88) + '%';
+        b.style.animationDelay = (i * 0.35) + 's';
+        b.style.fontSize = (2 + Math.random() * 1.5) + 'rem';
+        c.appendChild(b);
+      });
+    }
+
+    // Confetti
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const cCtx = confettiCanvas.getContext('2d');
+    let pieces = [], confettiRunning = false;
+
+    function resizeC() { confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+    resizeC(); window.addEventListener('resize', resizeC);
+
+    function triggerConfetti() {
+      confettiCanvas.style.opacity = '1';
+      pieces = [];
+      const colors = ['#6ec6ff', '#a8d8ff', '#ffffff', '#1a5cbf', '#bbdcff', '#2e8fd4'];
+      for (let i = 0; i < 130; i++) {
+        pieces.push({
+          x: Math.random() * confettiCanvas.width,
+          y: -10 - Math.random() * 250,
+          w: 5 + Math.random() * 8, h: 9 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * 360,
+          vx: (Math.random() - 0.5) * 3.5,
+          vy: 2.5 + Math.random() * 4,
+          vrot: (Math.random() - 0.5) * 9,
+          opacity: 1
+        });
+      }
+      confettiRunning = true;
+      animateC();
+    }
+
+    function animateC() {
+      if (!confettiRunning) return;
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      pieces.forEach(p => {
+        cCtx.save();
+        cCtx.translate(p.x, p.y);
+        cCtx.rotate(p.rot * Math.PI / 180);
+        cCtx.globalAlpha = p.opacity;
+        cCtx.fillStyle = p.color;
+        cCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        cCtx.restore();
+        p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
+        if (p.y > confettiCanvas.height * 0.65) p.opacity -= 0.014;
+      });
+      pieces = pieces.filter(p => p.opacity > 0);
+      if (pieces.length) requestAnimationFrame(animateC);
+      else { confettiRunning = false; confettiCanvas.style.opacity = '0'; }
+    }
+
+    // Particles
+    const pCanvas = document.getElementById('particles-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    let particles = [];
+
+    function resizeP() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+    resizeP(); window.addEventListener('resize', resizeP);
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 0.5 + Math.random() * 1.5,
+        dx: (Math.random() - 0.5) * 0.25,
+        dy: -0.15 - Math.random() * 0.35,
+        op: 0.08 + Math.random() * 0.45
+      });
+    }
+
+    function animateP() {
+      pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+      particles.forEach(p => {
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(255,255,255,${p.op})`;
+        pCtx.fill();
+        p.x += p.dx; p.y += p.dy;
+        if (p.y < -5) { p.y = pCanvas.height + 5; p.x = Math.random() * pCanvas.width; }
+        if (p.x < -5) p.x = pCanvas.width + 5;
+        if (p.x > pCanvas.width + 5) p.x = -5;
+      });
+      requestAnimationFrame(animateP);
+    }
+    animateP();
+  </script>
+</body>
+
+</html>
